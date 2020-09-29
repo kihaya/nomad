@@ -1,6 +1,7 @@
 package deploymentwatcher
 
 import (
+	"context"
 	"reflect"
 	"strings"
 	"sync"
@@ -95,7 +96,7 @@ func (m *mockBackend) UpsertJob(job *structs.Job) (uint64, error) {
 func (m *mockBackend) UpdateDeploymentStatus(u *structs.DeploymentStatusUpdateRequest) (uint64, error) {
 	m.Called(u)
 	i := m.nextIndex()
-	return i, m.state.UpdateDeploymentStatus(i, u)
+	return i, m.state.UpdateDeploymentStatus(context.Background(), i, u)
 }
 
 // matchDeploymentStatusUpdateConfig is used to configure the matching

@@ -194,6 +194,8 @@ func processDBChanges(tx ReadTxn, changes Changes) ([]stream.Event, error) {
 		return NodeDrainEventFromChanges(tx, changes)
 	case structs.UpsertNodeEventsType:
 		return NodeEventFromChanges(tx, changes)
+	case structs.DeploymentStatusUpdateRequestType:
+		return DeploymentEventFromChanges(tx, changes)
 	}
 	return []stream.Event{}, nil
 }

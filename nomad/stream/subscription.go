@@ -81,6 +81,26 @@ func (s *Subscription) Next(ctx context.Context) ([]Event, error) {
 	}
 }
 
+func (s *Subscription) NextNoBlock() ([]Event, error) {
+	if atomic.LoadUint32(&s.state) == subscriptionStateClosed {
+		return nil, ErrSubscriptionClosed
+	}
+
+	for {
+		next := s.currentItem.NextNoBlock()
+		if next == nil {
+			return nil, nil
+		}
+		s.currentItem = next
+
+		events := filter(s.req, next.Events)
+		if len(events) == 0 {
+			continue
+		}
+		return events, nil
+	}
+}
+
 func (s *Subscription) forceClose() {
 	swapped := atomic.CompareAndSwapUint32(&s.state, subscriptionStateOpen, subscriptionStateClosed)
 	if swapped {

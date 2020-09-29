@@ -228,7 +228,7 @@ func (n *nomadFSM) Apply(log *raft.Log) interface{} {
 	case structs.ApplyPlanResultsRequestType:
 		return n.applyPlanResults(buf[1:], log.Index)
 	case structs.DeploymentStatusUpdateRequestType:
-		return n.applyDeploymentStatusUpdate(buf[1:], log.Index)
+		return n.applyDeploymentStatusUpdate(msgType, buf[1:], log.Index)
 	case structs.DeploymentPromoteRequestType:
 		return n.applyDeploymentPromotion(buf[1:], log.Index)
 	case structs.DeploymentAllocHealthRequestType:
@@ -976,14 +976,16 @@ func (n *nomadFSM) applyPlanResults(buf []byte, index uint64) interface{} {
 
 // applyDeploymentStatusUpdate is used to update the status of an existing
 // deployment
-func (n *nomadFSM) applyDeploymentStatusUpdate(buf []byte, index uint64) interface{} {
+func (n *nomadFSM) applyDeploymentStatusUpdate(msgType structs.MessageType, buf []byte, index uint64) interface{} {
 	defer metrics.MeasureSince([]string{"nomad", "fsm", "apply_deployment_status_update"}, time.Now())
 	var req structs.DeploymentStatusUpdateRequest
 	if err := structs.Decode(buf, &req); err != nil {
 		panic(fmt.Errorf("failed to decode request: %v", err))
 	}
 
-	if err := n.state.UpdateDeploymentStatus(index, &req); err != nil {
+	ctx := context.WithValue(context.Background(), state.CtxMsgType, msgType)
+
+	if err := n.state.UpdateDeploymentStatus(ctx, index, &req); err != nil {
 		n.logger.Error("UpsertDeploymentStatusUpdate failed", "error", err)
 		return err
 	}

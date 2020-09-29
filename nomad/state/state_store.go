@@ -3827,8 +3827,8 @@ func (s *StateStore) SITokenAccessorsByNode(ws memdb.WatchSet, nodeID string) ([
 
 // UpdateDeploymentStatus is used to make deployment status updates and
 // potentially make a evaluation
-func (s *StateStore) UpdateDeploymentStatus(index uint64, req *structs.DeploymentStatusUpdateRequest) error {
-	txn := s.db.WriteTxn(index)
+func (s *StateStore) UpdateDeploymentStatus(ctx context.Context, index uint64, req *structs.DeploymentStatusUpdateRequest) error {
+	txn := s.db.WriteTxnCtx(ctx, index)
 	defer txn.Abort()
 
 	if err := s.updateDeploymentStatusImpl(index, req.DeploymentUpdate, txn); err != nil {

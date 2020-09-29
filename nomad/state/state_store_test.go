@@ -6600,7 +6600,7 @@ func TestStateStore_UpsertDeploymentStatusUpdate_Nonexistent(t *testing.T) {
 			Status:       structs.DeploymentStatusRunning,
 		},
 	}
-	err := state.UpdateDeploymentStatus(2, req)
+	err := state.UpdateDeploymentStatus(context.Background(), 2, req)
 	if err == nil || !strings.Contains(err.Error(), "does not exist") {
 		t.Fatalf("expected error updating the status because the deployment doesn't exist")
 	}
@@ -6627,7 +6627,7 @@ func TestStateStore_UpsertDeploymentStatusUpdate_Terminal(t *testing.T) {
 			Status:       structs.DeploymentStatusRunning,
 		},
 	}
-	err := state.UpdateDeploymentStatus(2, req)
+	err := state.UpdateDeploymentStatus(context.Background(), 2, req)
 	if err == nil || !strings.Contains(err.Error(), "has terminal status") {
 		t.Fatalf("expected error updating the status because the deployment is terminal")
 	}
@@ -6661,7 +6661,7 @@ func TestStateStore_UpsertDeploymentStatusUpdate_NonTerminal(t *testing.T) {
 		Job:  j,
 		Eval: e,
 	}
-	err := state.UpdateDeploymentStatus(2, req)
+	err := state.UpdateDeploymentStatus(context.Background(), 2, req)
 	if err != nil {
 		t.Fatalf("bad: %v", err)
 	}
@@ -6722,7 +6722,7 @@ func TestStateStore_UpsertDeploymentStatusUpdate_Successful(t *testing.T) {
 			StatusDescription: structs.DeploymentStatusDescriptionSuccessful,
 		},
 	}
-	err := state.UpdateDeploymentStatus(3, req)
+	err := state.UpdateDeploymentStatus(context.Background(), 3, req)
 	if err != nil {
 		t.Fatalf("bad: %v", err)
 	}
